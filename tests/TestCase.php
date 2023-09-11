@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Illuminate\Database\Schema\Blueprint;
+use Kayrunm\Polybind\Polybind;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -12,6 +13,7 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->setUpDatabase();
+        $this->setUpMiddleware();
     }
 
     private function setUpDatabase(): void
@@ -27,5 +29,10 @@ abstract class TestCase extends BaseTestCase
             $table->increments('id');
             $table->uuid();
         });
+    }
+
+    private function setUpMiddleware(): void
+    {
+        $this->app['router']->aliasMiddleware('polybind', Polybind::class);
     }
 }

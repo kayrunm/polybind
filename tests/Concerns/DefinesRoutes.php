@@ -18,11 +18,11 @@ trait DefinesRoutes
      */
     public function defineRoutes($router): void
     {
-        Route::get('/fail/no-model-type', fn () => 'This route does not have a model_type')->middleware(Polybind::class);
-        Route::get('/basic/{model_type}/{model_id}', [BasicController::class, 'show'])->middleware(Polybind::class);
-        Route::get('/single-action/{model_type}/{model_id}', SingleActionController::class)->middleware(Polybind::class);
+        Route::get('/fail/no-model-type', fn () => 'This route does not have a model_type')->middleware('polybind');
+        Route::get('/basic/{model_type}/{model_id}', [BasicController::class, 'show'])->middleware('polybind');
+        Route::get('/single-action/{model_type}/{model_id}', SingleActionController::class)->middleware('polybind');
         Route::get('/closure/{model_type}/{model_id}', function ($model) {
             return response()->json($model);
-        })->middleware(Polybind::class);
+        })->middleware('polybind');
     }
 }
