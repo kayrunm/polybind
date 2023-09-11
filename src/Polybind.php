@@ -11,6 +11,8 @@ use Illuminate\Routing\Route;
 
 class Polybind
 {
+    public static ?Closure $resolver = null;
+
     /**
      * @param  Request  $request
      * @param  Closure  $next
@@ -28,7 +30,7 @@ class Polybind
         /** @var class-string<Model>|null $class */
         $class = $this->resolveModelClass($request, $modelTypeParam);
 
-        $model = $class::query()->findOrFail($request->route($modelIdParam));
+        $model = $this->resolveModel($class, $request->route($modelIdParam));
 
         /** @var Route $route */
         $route = $request->route();
@@ -56,5 +58,24 @@ class Polybind
         }
 
         throw (new ModelNotFoundException())->setModel($type);
+    }
+
+    /**
+     * @param  class-string<Model>  $class
+     * @param  string  $modelIdParam
+     * @return Model
+     *
+     * @throws ModelNotFoundException
+     */
+    private function resolveModel(string $class, string $modelIdParam): Model
+    {
+        $resolver = self::$resolver ?? fn ($query) => $query->findOrFail($modelIdParam);
+
+        return $resolver((new $class)->newQuery(), $modelIdParam);
+    }
+
+    public static function setResolver(?Closure $resolver = null): void
+    {
+        self::$resolver = $resolver;
     }
 }
