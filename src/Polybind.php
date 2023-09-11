@@ -21,11 +21,16 @@ class Polybind
     public function handle(Request $request, Closure $next): mixed
     {
         /** @var class-string<Model>|null $class */
-        if (! $class = $this->resolveModelClass($request)) {
-            return null;
-        }
+        $class = $this->resolveModelClass($request);
 
         $model = $class::query()->findOrFail($request->route('model_id'));
+
+        /** @var Route $route */
+        $route = $request->route();
+
+        $route->forgetParameter('model_type');
+        $route->forgetParameter('model_id');
+        $route->setParameter('model', $model);
 
         return $next($request);
     }
@@ -34,20 +39,16 @@ class Polybind
      * @param  Request  $request
      * @return class-string<Model>|null
      */
-    private function resolveModelClass(Request $request): ?string
+    private function resolveModelClass(Request $request): string
     {
         if (! $type = $request->route('model_type')) {
-            return null;
+            throw PolybindException::typeNotFound();
         }
 
-        if (class_exists($type) && is_a($type, Model::class, true)) {
-            return $type;
+        if ($class = Relation::getMorphedModel($type)) {
+            return $class;
         }
 
-        if ($type = Relation::getMorphedModel($type)) {
-            return $type;
-        }
-
-        return null;
+        throw (new ModelNotFoundException())->setModel($type);
     }
 }
