@@ -24,5 +24,14 @@ trait DefinesRoutes
         Route::get('/closure/{model_type}/{model_id}', function ($model) {
             return response()->json($model);
         })->middleware('polybind');
+
+        Route::get('/custom-model-type/{type}/{model_id}', [BasicController::class, 'show'])
+            ->middleware('polybind:type');
+
+        Route::get('/custom-model-id/{type}/{id}', [BasicController::class, 'show'])
+            ->middleware('polybind:type,id');
+
+        Route::get('/custom-model/{type}/{id}', [BasicController::class, 'showCustom'])
+            ->middleware('polybind:type,id,myModel');
     }
 }

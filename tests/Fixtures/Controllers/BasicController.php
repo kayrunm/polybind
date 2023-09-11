@@ -10,4 +10,9 @@ class BasicController
     {
         return response()->json($model);
     }
+
+    public function showCustom($model): JsonResponse
+    {
+        return response()->json($model);
+    }
 }

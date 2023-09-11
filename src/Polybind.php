@@ -18,31 +18,37 @@ class Polybind
      *
      * @throws ModelNotFoundException<Model>
      */
-    public function handle(Request $request, Closure $next): mixed
-    {
+    public function handle(
+        Request $request,
+        Closure $next,
+        string $modelTypeParam = 'model_type',
+        string $modelIdParam = 'model_id',
+        string $modelParam = 'model',
+    ): mixed {
         /** @var class-string<Model>|null $class */
-        $class = $this->resolveModelClass($request);
+        $class = $this->resolveModelClass($request, $modelTypeParam);
 
-        $model = $class::query()->findOrFail($request->route('model_id'));
+        $model = $class::query()->findOrFail($request->route($modelIdParam));
 
         /** @var Route $route */
         $route = $request->route();
 
-        $route->forgetParameter('model_type');
-        $route->forgetParameter('model_id');
-        $route->setParameter('model', $model);
+        $route->forgetParameter($modelTypeParam);
+        $route->forgetParameter($modelIdParam);
+        $route->setParameter($modelParam, $model);
 
         return $next($request);
     }
 
     /**
      * @param  Request  $request
-     * @return class-string<Model>|null
+     * @param  string  $param
+     * @return class-string<Model>
      */
-    private function resolveModelClass(Request $request): string
+    private function resolveModelClass(Request $request, string $param): string
     {
-        if (! $type = $request->route('model_type')) {
-            throw PolybindException::typeNotFound();
+        if (! $type = $request->route($param)) {
+            throw PolybindException::typeNotFound($param);
         }
 
         if ($class = Relation::getMorphedModel($type)) {
