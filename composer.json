@@ -18,6 +18,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.9.5",
+        "orchestra/testbench": "^8.0",
         "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^10.0"
     },
