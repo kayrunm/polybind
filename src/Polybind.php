@@ -3,6 +3,7 @@
 namespace Kayrunm\Polybind;
 
 use Closure;
+use Illuminate\Config\Repository as Config;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -12,6 +13,11 @@ use Illuminate\Routing\Route;
 class Polybind
 {
     public static ?Closure $resolver = null;
+
+    public function __construct(private readonly Config $config)
+    {
+        // ...
+    }
 
     /**
      * @param  Request  $request
@@ -23,20 +29,24 @@ class Polybind
     public function handle(
         Request $request,
         Closure $next,
-        string $modelTypeParam = 'model_type',
-        string $modelIdParam = 'model_id',
-        string $modelParam = 'model',
+        string $typeParam = null,
+        string $idParam = null,
+        string $modelParam = null,
     ): mixed {
-        /** @var class-string<Model>|null $class */
-        $class = $this->resolveModelClass($request, $modelTypeParam);
+        $typeParam ??= $this->config->get('polybind.defaults.type_param');
+        $idParam ??= $this->config->get('polybind.defaults.id_param');
+        $modelParam ??= $this->config->get('polybind.defaults.model_param');
 
-        $model = $this->resolveModel($class, $request->route($modelIdParam));
+        /** @var class-string<Model>|null $class */
+        $class = $this->resolveModelClass($request, $typeParam);
+
+        $model = $this->resolveModel($class, $request->route($idParam));
 
         /** @var Route $route */
         $route = $request->route();
 
-        $route->forgetParameter($modelTypeParam);
-        $route->forgetParameter($modelIdParam);
+        $route->forgetParameter($typeParam);
+        $route->forgetParameter($idParam);
         $route->setParameter($modelParam, $model);
 
         return $next($request);
@@ -69,7 +79,7 @@ class Polybind
      */
     private function resolveModel(string $class, string $modelIdParam): Model
     {
-        $resolver = self::$resolver ?? fn ($query) => $query->findOrFail($modelIdParam);
+        $resolver = self::$resolver ?? $this->config->get('polybind.defaults.resolver');
 
         return $resolver((new $class)->newQuery(), $modelIdParam);
     }

@@ -4,6 +4,7 @@ namespace Tests;
 
 use Illuminate\Database\Schema\Blueprint;
 use Kayrunm\Polybind\Polybind;
+use Kayrunm\Polybind\PolybindServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -14,6 +15,11 @@ abstract class TestCase extends BaseTestCase
 
         $this->setUpDatabase();
         $this->setUpMiddleware();
+    }
+
+    protected function getPackageProviders($app): array
+    {
+        return [PolybindServiceProvider::class];
     }
 
     private function setUpDatabase(): void

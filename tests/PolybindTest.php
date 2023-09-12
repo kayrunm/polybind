@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Kayrunm\Polybind\Polybind;
 use Kayrunm\Polybind\PolybindException;
@@ -157,6 +158,25 @@ class PolybindTest extends TestCase
             ->assertJsonPath('uuid', 'd910c260-3940-4b78-b8c3-f781a29230cd');
     }
 
+    public function test_can_resolve_model_with_updated_config_values(): void
+    {
+        config([
+            'polybind.defaults.type_param' => 'type',
+            'polybind.defaults.id_param' => 'uuid',
+            'polybind.defaults.model_param' => 'post',
+            'polybind.defaults.resolver' => fn (Builder $query, $value) => $query->where('uuid', $value)->firstOrFail(),
+        ]);
+
+        Models\Post::query()->create([
+            'uuid' => 'd910c260-3940-4b78-b8c3-f781a29230cd',
+        ]);
+
+        $this->get('/custom/post/d910c260-3940-4b78-b8c3-f781a29230cd')
+            ->assertOk()
+            ->assertJsonPath('id', 1)
+            ->assertJsonPath('uuid', 'd910c260-3940-4b78-b8c3-f781a29230cd');
+    }
+
     public function test_can_resolve_model_with_custom_resolver(): void
     {
         Polybind::setResolver(function ($query, $value) {
@@ -180,5 +200,7 @@ class PolybindTest extends TestCase
             ->assertOk()
             ->assertJsonPath('id', 1)
             ->assertJsonPath('uuid', 'd910c260-3940-4b78-b8c3-f781a29230cd');
+
+        Polybind::setResolver();
     }
 }

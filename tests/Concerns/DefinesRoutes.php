@@ -33,5 +33,8 @@ trait DefinesRoutes
 
         Route::get('/custom-model/{type}/{id}', [BasicController::class, 'showCustom'])
             ->middleware('polybind:type,id,myModel');
+
+        Route::get('/custom/{type}/{uuid}', [BasicController::class, 'showCustom'])
+            ->middleware('polybind');
     }
 }
