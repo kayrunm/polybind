@@ -22,9 +22,12 @@ class Polybind
     /**
      * @param  Request  $request
      * @param  Closure  $next
+     * @param  string|null  $typeParam
+     * @param  string|null  $idParam
+     * @param  string|null  $modelParam
      * @return mixed
      *
-     * @throws ModelNotFoundException<Model>
+     * @throws PolybindException
      */
     public function handle(
         Request $request,
