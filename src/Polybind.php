@@ -9,13 +9,17 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Kayrunm\Polybind\Exceptions\PolybindException;
+use Kayrunm\Polybind\Support\ParameterResolver;
 
 class Polybind
 {
     public static ?Closure $resolver = null;
 
-    public function __construct(private readonly Config $config)
-    {
+    public function __construct(
+        private readonly Config $config,
+        private readonly ParameterResolver $parameterResolver,
+    ) {
         // ...
     }
 
@@ -47,6 +51,10 @@ class Polybind
 
         /** @var Route $route */
         $route = $request->route();
+
+        if (! $this->isValidType($model, $modelParam, $route)) {
+            throw (new ModelNotFoundException())->setModel(get_class($model));
+        }
 
         $route->forgetParameter($typeParam);
         $route->forgetParameter($idParam);
@@ -85,6 +93,17 @@ class Polybind
         $resolver = self::$resolver ?? $this->config->get('polybind.defaults.resolver');
 
         return $resolver((new $class)->newQuery(), $modelIdParam);
+    }
+
+    private function isValidType(Model $model, mixed $param, Route $route): bool
+    {
+        $type = $this->parameterResolver->getParameterType($param, $route);
+
+        if (! $type) {
+            return true;
+        }
+
+        return $type->matches($model);
     }
 
     public static function setResolver(?Closure $resolver = null): void

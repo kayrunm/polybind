@@ -24,15 +24,15 @@ class ParameterResolverTest extends TestCase
         $this->parameterResolver = new ParameterResolver();
     }
 
-    public function test_throws_an_exception_when_the_parameter_does_not_exist_in_a_closure(): void
+    public function test_returns_null_the_parameter_does_not_exist_in_a_closure(): void
     {
-        $this->expectException(ParameterException::class);
-
         $route = $this->createRoute(function ($foo, $bar) {
             // ...
         });
 
-        $this->parameterResolver->getParameterType('baz', $route);
+        $type = $this->parameterResolver->getParameterType('baz', $route);
+
+        $this->assertNull($type);
     }
 
     public function test_returns_null_for_a_parameter_without_a_type_from_a_closure(): void
@@ -84,13 +84,13 @@ class ParameterResolverTest extends TestCase
         $this->assertSame(Comment::class, $type->toArray()[1]);
     }
 
-    public function test_throws_an_exception_when_the_parameter_does_not_exist_in_a_controller(): void
+    public function test_returns_null_when_the_parameter_does_not_exist_in_a_controller(): void
     {
-        $this->expectException(ParameterException::class);
-
         $route = $this->createRoute([BasicController::class, 'index']);
 
-        $this->parameterResolver->getParameterType('baz', $route);
+        $type = $this->parameterResolver->getParameterType('baz', $route);
+
+        $this->assertNull($type);
     }
 
     public function test_returns_null_for_a_parameter_without_a_type_from_a_controller(): void
@@ -106,7 +106,7 @@ class ParameterResolverTest extends TestCase
     {
         $route = $this->createRoute([BasicController::class, 'showSpecific']);
 
-        $type = $this->parameterResolver->getParameterType('comment', $route);
+        $type = $this->parameterResolver->getParameterType('model', $route);
 
         $this->assertInstanceOf(Type::class, $type);
         $this->assertSame(Comment::class, $type->toArray()[0]);

@@ -4,7 +4,7 @@ namespace Tests\Fixtures\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Comment extends Model implements HasAuthor
+class Author extends Model
 {
     public $timestamps = false;
 

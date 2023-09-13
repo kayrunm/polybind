@@ -34,11 +34,7 @@ class ParameterResolver
         /** @var ReflectionParameter|null $parameter */
         $parameter = $parameters->first(fn (ReflectionParameter $reflection) => $reflection->getName() === $name);
 
-        if (! $parameter) {
-            throw ParameterException::parameterNotFound($name);
-        }
-
-        if (! $type = $parameter->getType()) {
+        if (! $type = $parameter?->getType()) {
             return null;
         }
 

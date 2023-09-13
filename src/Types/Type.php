@@ -22,7 +22,7 @@ readonly class Type implements TypeContract
     {
         $match = is_object($match) ? get_class($match) : $match;
 
-        return $this->type === $match;
+        return is_a($match, $this->type, true);
     }
 
     public function toArray(): array

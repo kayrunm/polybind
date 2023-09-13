@@ -19,14 +19,14 @@ class BasicController
         return response()->json($model);
     }
 
-    public function showCustom($model): JsonResponse
+    public function showCustom($post): JsonResponse
     {
-        return response()->json($model);
+        return response()->json($post);
     }
 
-    public function showSpecific(Comment $comment): JsonResponse
+    public function showSpecific(Comment $model): JsonResponse
     {
-        return response()->json($comment);
+        return response()->json($model);
     }
 
     public function showUnion(Comment|Post $model): JsonResponse

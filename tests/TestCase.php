@@ -35,6 +35,11 @@ abstract class TestCase extends BaseTestCase
             $table->increments('id');
             $table->uuid();
         });
+
+        $schema->create('authors', function (Blueprint $table) {
+            $table->increments('id');
+            $table->uuid();
+        });
     }
 
     private function setUpMiddleware(): void

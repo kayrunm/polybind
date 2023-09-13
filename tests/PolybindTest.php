@@ -4,8 +4,8 @@ namespace Tests;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Kayrunm\Polybind\Exceptions\PolybindException;
 use Kayrunm\Polybind\Polybind;
-use Kayrunm\Polybind\PolybindException;
 use Tests\Concerns\DefinesRoutes;
 use Tests\Fixtures\Models;
 
@@ -202,5 +202,79 @@ class PolybindTest extends TestCase
             ->assertJsonPath('uuid', 'd910c260-3940-4b78-b8c3-f781a29230cd');
 
         Polybind::setResolver();
+    }
+
+    public function test_can_resolve_model_of_specified_type(): void
+    {
+        $this->withoutExceptionHandling();
+
+        Models\Comment::query()->create([
+            'uuid' => 'ecbdc8de-daaf-44a9-b4e8-938e94d9c862',
+        ]);
+
+        $this->get('/specific/comment/1')
+            ->assertOk()
+            ->assertJsonPath('id', 1)
+            ->assertJsonPath('uuid', 'ecbdc8de-daaf-44a9-b4e8-938e94d9c862');
+    }
+
+    public function test_throws_error_for_model_not_of_specified_type(): void
+    {
+        Models\Post::query()->create([
+            'uuid' => 'ecbdc8de-daaf-44a9-b4e8-938e94d9c862',
+        ]);
+
+        $this->get('/specific/post/1')->assertNotFound();
+    }
+
+    public function test_can_resolve_model_of_specified_union_type(): void
+    {
+        Models\Comment::query()->create([
+            'uuid' => 'ecbdc8de-daaf-44a9-b4e8-938e94d9c862',
+        ]);
+
+        $this->get('/union/comment/1')
+            ->assertOk()
+            ->assertJsonPath('id', 1)
+            ->assertJsonPath('uuid', 'ecbdc8de-daaf-44a9-b4e8-938e94d9c862');
+
+        Models\Post::query()->create([
+            'uuid' => '03c38235-b7bb-4c51-9121-6236f3ff772c',
+        ]);
+
+        $this->get('/union/post/1')
+            ->assertOk()
+            ->assertJsonPath('id', 1)
+            ->assertJsonPath('uuid', '03c38235-b7bb-4c51-9121-6236f3ff772c');
+    }
+
+    public function test_throws_error_for_model_not_of_specified_union_type(): void
+    {
+        Models\Author::query()->create([
+            'uuid' => 'ecbdc8de-daaf-44a9-b4e8-938e94d9c862',
+        ]);
+
+        $this->get('/union/author/1')->assertNotFound();
+    }
+
+    public function test_can_resolve_model_of_specified_interface(): void
+    {
+        Models\Comment::query()->create([
+            'uuid' => 'ecbdc8de-daaf-44a9-b4e8-938e94d9c862',
+        ]);
+
+        $this->get('/interface/comment/1')
+            ->assertOk()
+            ->assertJsonPath('id', 1)
+            ->assertJsonPath('uuid', 'ecbdc8de-daaf-44a9-b4e8-938e94d9c862');
+    }
+
+    public function test_throws_error_for_model_not_of_specified_interface(): void
+    {
+        Models\Author::query()->create([
+            'uuid' => 'ecbdc8de-daaf-44a9-b4e8-938e94d9c862',
+        ]);
+
+        $this->get('/interface/author/1')->assertNotFound();
     }
 }
