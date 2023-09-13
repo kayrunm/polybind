@@ -1,6 +1,6 @@
 <?php
 
-namespace Kayrunm\Polybind;
+namespace Kayrunm\Polybind\Exceptions;
 
 use Exception;
 
