@@ -31,10 +31,10 @@ class Polybind
      * @param  string|null  $typeParam
      * @param  string|null  $idParam
      * @param  string|null  $modelParam
-     * @return mixed
-     *
      * @throws ParameterNotFound
      * @throws InvalidModelType
+     * @return mixed
+     *
      */
     public function handle(
         Request $request,
@@ -47,13 +47,18 @@ class Polybind
         $idParam ??= $this->config->get('polybind.defaults.id_param');
         $modelParam ??= $this->config->get('polybind.defaults.model_param');
 
-        /** @var class-string<Model>|null $class */
-        $class = $this->resolveModelClass($request, $typeParam);
-
-        $model = $this->resolveModel($class, $request->route($idParam));
-
         /** @var Route $route */
         $route = $request->route();
+        $type = $route->parameter($typeParam);
+        $id = $route->parameter($idParam);
+
+        if (! is_string($type) || ! is_string($id)) {
+            return $next($request);
+        }
+
+        $class = $this->resolveModelClass($type);
+
+        $model = $this->resolveModel($class, $id);
 
         if (! $this->isValidType($model, $modelParam, $route)) {
             throw InvalidModelType::make($model);
@@ -67,37 +72,34 @@ class Polybind
     }
 
     /**
-     * @param  Request  $request
      * @param  string  $param
-     * @return class-string<Model>
-     *
      * @throws ParameterNotFound
+     * @return class-string<Model>
      */
-    private function resolveModelClass(Request $request, string $param): string
+    private function resolveModelClass(string $param): string
     {
-        if (! $type = $request->route($param)) {
-            throw ParameterNotFound::make($param);
+        /** @var class-string<Model>|null $class */
+        $class = Relation::getMorphedModel($param);
+
+        if (! $class) {
+            throw new ModelNotFoundException();
         }
 
-        if ($class = Relation::getMorphedModel($type)) {
-            return $class;
-        }
-
-        throw (new ModelNotFoundException())->setModel($type);
+        return $class;
     }
 
     /**
      * @param  class-string<Model>  $class
      * @param  string  $modelIdParam
+     * @throws ModelNotFoundException
      * @return Model
      *
-     * @throws ModelNotFoundException
      */
     private function resolveModel(string $class, string $modelIdParam): Model
     {
         $resolver = self::$resolver ?? $this->config->get('polybind.defaults.resolver');
 
-        return $resolver((new $class)->newQuery(), $modelIdParam);
+        return $resolver((new $class())->newQuery(), $modelIdParam);
     }
 
     private function isValidType(Model $model, mixed $param, Route $route): bool

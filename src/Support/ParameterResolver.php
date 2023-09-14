@@ -8,11 +8,10 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Kayrunm\Polybind\Contracts\Type as TypeContract;
-use Kayrunm\Polybind\Exceptions\ParameterNotFound;
+use Kayrunm\Polybind\Exceptions\PolybindException;
 use Kayrunm\Polybind\Types\IntersectionType;
 use Kayrunm\Polybind\Types\Type;
 use Kayrunm\Polybind\Types\UnionType;
-use ReflectionClass;
 use ReflectionFunction;
 use ReflectionIntersectionType;
 use ReflectionMethod;
@@ -41,6 +40,11 @@ class ParameterResolver
         return $this->resolveTypes($type);
     }
 
+    /**
+     * @param  Closure  $uses
+     * @throws \ReflectionException
+     * @return Collection<int, ReflectionParameter>
+     */
     private function getParametersFromClosure(Closure $uses): Collection
     {
         return Collection::make(
@@ -48,22 +52,34 @@ class ParameterResolver
         );
     }
 
+    /**
+     * @param  mixed  $uses
+     * @throws \ReflectionException
+     * @return Collection<int, ReflectionParameter>
+     */
     private function getParametersFromController(mixed $uses): Collection
     {
         [$controller, $method] = Str::parseCallback($uses);
+
+        if (! $controller || ! $method) {
+            return Collection::empty();
+        }
 
         return Collection::make(
             (new ReflectionMethod($controller, $method))->getParameters()
         );
     }
 
+    /**
+     * @throws Exception
+     */
     private function resolveTypes(ReflectionType $type): TypeContract
     {
         return match (get_class($type)) {
             ReflectionNamedType::class => new Type($type->getName()),
             ReflectionUnionType::class => new UnionType(array_map($this->resolveTypes(...), $type->getTypes())),
             ReflectionIntersectionType::class => new IntersectionType(array_map($this->resolveTypes(...), $type->getTypes())),
-            default => throw new Exception('Unknown type'),
+            default => throw new PolybindException('Unknown type'),
         };
     }
 }

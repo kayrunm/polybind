@@ -113,3 +113,28 @@ Route::get('/{author_type}/{author_uuid}', function ($author) {
     return response()->json($author);
 })->middleware('polybind:author_type,author_uuid,author');
 ```
+
+### Adding to your entire application
+
+If you make use of polymorphic route-model binding throughout your application, you may find it easier to simply apply
+Polybind's functionality on all of your routes. Polybind will only run on routes where it finds a matching type _and_
+identifier parameter.
+
+To do this, simply add the Polybind middleware to the middleware groups you would like it to run on, for example in the
+`web` and `api` groups in `app/Http/Kernel.php`:
+
+```php
+protected $middlewareGroups = [
+    'web' => [
+        // ...
+        \Kayrunm\Polybind\Polybind::class,    
+    ],
+    
+    'api' => [
+        // ...
+        \Kayrunm\Polybind\Polybind::class,    
+    ],
+];
+```
+
+**Note:** Make sure that the Polybind middleware is applied _after_ the `SubstituteBindings` middleware.
