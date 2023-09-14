@@ -42,8 +42,8 @@ class ParameterResolver
 
     /**
      * @param  Closure  $uses
-     * @return Collection<int, ReflectionParameter>
      * @throws \ReflectionException
+     * @return Collection<int, ReflectionParameter>
      */
     private function getParametersFromClosure(Closure $uses): Collection
     {
@@ -54,8 +54,8 @@ class ParameterResolver
 
     /**
      * @param  mixed  $uses
-     * @return Collection<int, ReflectionParameter>
      * @throws \ReflectionException
+     * @return Collection<int, ReflectionParameter>
      */
     private function getParametersFromController(mixed $uses): Collection
     {
