@@ -61,7 +61,7 @@ public function show($model)
 
 **Note:** Polybind requires that your models are registered in `Relation::morphMap()`.
 
-### Type hinting
+### Type validation
 
 Polybind allows you to hint the types of model that a route accepts, either with union/intersection types or even with
 interfaces. If Polybind resolves a model that doesn't match the type that you have type hinted, it will throw a
@@ -86,4 +86,17 @@ public function show(Post|Comment $model)
 {
     return response()->json($model);
 }
+```
+
+### Per-route configuration
+
+Polybind also allows you to configure the route parameters for the model type and model identifier, as well as the name
+you use for the parameter in your controller method, on a per-route basis. Here's an example of how to do that:
+
+```php
+// routes/web.php
+
+Route::get('/{author_type}/{author_uuid}', function ($author) {
+
+})->middleware('polybind:author_type,author_uuid,author');
 ```
