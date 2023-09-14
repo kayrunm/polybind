@@ -6,9 +6,6 @@ use Kayrunm\Polybind\Contracts\Type as TypeContract;
 
 readonly class Type implements TypeContract
 {
-    /**
-     * @param class-string $type
-     */
     public function __construct(private string $type)
     {
         // ...

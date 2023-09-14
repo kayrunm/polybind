@@ -11,7 +11,7 @@ interface Type
     public function matches(object|string $match): bool;
 
     /**
-     * @return array<class-string>
+     * @return array<string>
      */
     public function toArray(): array;
 }
