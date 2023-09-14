@@ -24,13 +24,14 @@ class PolybindTest extends TestCase
         ]);
     }
 
-    public function test_throws_an_exception_if_no_model_type_exists_on_the_route(): void
+    public function test_does_nothing_if_no_model_type_parameter_exists(): void
     {
-        $this
-            ->withoutExceptionHandling()
-            ->expectException(ParameterNotFound::class);
+        $this->get('/passthru')->assertSuccessful();
+    }
 
-        $this->get('/fail/no-model-type');
+    public function test_does_nothing_if_no_model_id_parameter_exists(): void
+    {
+        $this->get('/passthru/post')->assertSuccessful();
     }
 
     public function test_can_resolve_model_in_basic_controller(): void

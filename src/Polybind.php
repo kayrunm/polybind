@@ -47,13 +47,17 @@ class Polybind
         $idParam ??= $this->config->get('polybind.defaults.id_param');
         $modelParam ??= $this->config->get('polybind.defaults.model_param');
 
-        /** @var class-string<Model>|null $class */
-        $class = $this->resolveModelClass($request, $typeParam);
-
-        $model = $this->resolveModel($class, $request->route($idParam));
-
         /** @var Route $route */
         $route = $request->route();
+
+        if (! $route->hasParameter($typeParam) || ! $route->hasParameter($idParam)) {
+            return $next($request);
+        }
+
+        /** @var class-string<Model>|null $class */
+        $class = $this->resolveModelClass($request->route($typeParam));
+
+        $model = $this->resolveModel($class, $request->route($idParam));
 
         if (! $this->isValidType($model, $modelParam, $route)) {
             throw InvalidModelType::make($model);
@@ -67,23 +71,18 @@ class Polybind
     }
 
     /**
-     * @param  Request  $request
      * @param  string  $param
      * @return class-string<Model>
      *
      * @throws ParameterNotFound
      */
-    private function resolveModelClass(Request $request, string $param): string
+    private function resolveModelClass(string $param): string
     {
-        if (! $type = $request->route($param)) {
-            throw ParameterNotFound::make($param);
-        }
-
-        if ($class = Relation::getMorphedModel($type)) {
+        if ($class = Relation::getMorphedModel($param)) {
             return $class;
         }
 
-        throw (new ModelNotFoundException())->setModel($type);
+        throw (new ModelNotFoundException())->setModel($param);
     }
 
     /**
