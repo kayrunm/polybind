@@ -97,6 +97,6 @@ you use for the parameter in your controller method, on a per-route basis. Here'
 // routes/web.php
 
 Route::get('/{author_type}/{author_uuid}', function ($author) {
-
+    return response()->json($author);
 })->middleware('polybind:author_type,author_uuid,author');
 ```
