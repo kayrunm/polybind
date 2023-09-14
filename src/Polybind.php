@@ -31,10 +31,10 @@ class Polybind
      * @param  string|null  $typeParam
      * @param  string|null  $idParam
      * @param  string|null  $modelParam
-     * @return mixed
-     *
      * @throws ParameterNotFound
      * @throws InvalidModelType
+     * @return mixed
+     *
      */
     public function handle(
         Request $request,
@@ -72,9 +72,9 @@ class Polybind
 
     /**
      * @param  string  $param
+     * @throws ParameterNotFound
      * @return class-string<Model>
      *
-     * @throws ParameterNotFound
      */
     private function resolveModelClass(string $param): string
     {
@@ -88,15 +88,15 @@ class Polybind
     /**
      * @param  class-string<Model>  $class
      * @param  string  $modelIdParam
+     * @throws ModelNotFoundException
      * @return Model
      *
-     * @throws ModelNotFoundException
      */
     private function resolveModel(string $class, string $modelIdParam): Model
     {
         $resolver = self::$resolver ?? $this->config->get('polybind.defaults.resolver');
 
-        return $resolver((new $class)->newQuery(), $modelIdParam);
+        return $resolver((new $class())->newQuery(), $modelIdParam);
     }
 
     private function isValidType(Model $model, mixed $param, Route $route): bool
