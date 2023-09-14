@@ -21,11 +21,24 @@ The service provider for the package will automatically be registered, but if yo
 the following in your `config/app.php` file:
 
 ```php
-    'providers' => [
-        // ...
-        Kayrunm\Polybind\PolybindServiceProvider::class,
-    ],
+'providers' => [
+    // ...
+    Kayrunm\Polybind\PolybindServiceProvider::class,
+],
 ```
+
+Finally, you just need to alias the middleware in your `$middlewareAliases` in `app/Http/Kernel.php`:
+
+```php
+protected $middlewareAliases = [
+    // ...
+    'polybind' => Kayrunm\Polybind\Polybind::class
+];
+```
+
+You can skip aliasing the middleware if you have no intention of using [per-route parameters](#per-route-configuration),
+as it just makes it easier to add the middleware parameters. If you do skip this step, you'll have to apply the 
+middleware using the full Polybind classname.
 
 ## Configuration
 
