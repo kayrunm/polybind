@@ -59,13 +59,16 @@ public function show($model)
 }
 ```
 
+**Note:** Polybind requires that your models are registered in `Relation::morphMap()`.
+
 ### Type hinting
 
 Polybind allows you to hint the types of model that a route accepts, either with union/intersection types or even with
 interfaces. If Polybind resolves a model that doesn't match the type that you have type hinted, it will throw a
-`TBD` exception.
+`TBD` exception. If you don't use any type hinting in your controller method, Polybind will allow any Model to be
+resolved.
 
-Here's an example of type-hinting with an interface:
+Here's an example of type hinting with an interface:
 ```php
 // MyController.php
 
@@ -75,7 +78,7 @@ public function show(HasAuthor $model)
 }
 ```
 
-And here's an example of type-hinting using a union type:
+And here's an example of type hinting using a union type:
 ```php
 // MyController.php
 
