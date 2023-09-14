@@ -8,7 +8,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Kayrunm\Polybind\Contracts\Type as TypeContract;
-use Kayrunm\Polybind\Exceptions\ParameterException;
+use Kayrunm\Polybind\Exceptions\ParameterNotFound;
 use Kayrunm\Polybind\Types\IntersectionType;
 use Kayrunm\Polybind\Types\Type;
 use Kayrunm\Polybind\Types\UnionType;

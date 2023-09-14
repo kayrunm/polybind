@@ -3,7 +3,7 @@
 namespace Tests\Support;
 
 use Illuminate\Routing\Route;
-use Kayrunm\Polybind\Exceptions\ParameterException;
+use Kayrunm\Polybind\Exceptions\ParameterNotFound;
 use Kayrunm\Polybind\Support\ParameterResolver;
 use Kayrunm\Polybind\Types\IntersectionType;
 use Kayrunm\Polybind\Types\Type;

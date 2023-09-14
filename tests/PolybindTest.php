@@ -4,7 +4,8 @@ namespace Tests;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Kayrunm\Polybind\Exceptions\PolybindException;
+use Kayrunm\Polybind\Exceptions\InvalidModelType;
+use Kayrunm\Polybind\Exceptions\ParameterNotFound;
 use Kayrunm\Polybind\Polybind;
 use Tests\Concerns\DefinesRoutes;
 use Tests\Fixtures\Models;
@@ -27,7 +28,7 @@ class PolybindTest extends TestCase
     {
         $this
             ->withoutExceptionHandling()
-            ->expectException(PolybindException::class);
+            ->expectException(ParameterNotFound::class);
 
         $this->get('/fail/no-model-type');
     }
@@ -220,11 +221,15 @@ class PolybindTest extends TestCase
 
     public function test_throws_error_for_model_not_of_specified_type(): void
     {
+        $this
+            ->withoutExceptionHandling()
+            ->expectException(InvalidModelType::class);
+
         Models\Post::query()->create([
             'uuid' => 'ecbdc8de-daaf-44a9-b4e8-938e94d9c862',
         ]);
 
-        $this->get('/specific/post/1')->assertNotFound();
+        $this->get('/specific/post/1');
     }
 
     public function test_can_resolve_model_of_specified_union_type(): void

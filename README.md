@@ -65,8 +65,8 @@ public function show($model)
 
 Polybind allows you to hint the types of model that a route accepts, either with union/intersection types or even with
 interfaces. If Polybind resolves a model that doesn't match the type that you have type hinted, it will throw a
-`TBD` exception. If you don't use any type hinting in your controller method, Polybind will allow any Model to be
-resolved.
+`Kayrum\Polybind\Exceptions\InvalidModelType` exception. If you don't use any type hinting in your controller method,
+Polybind will allow any Model to be resolved.
 
 Here's an example of type hinting with an interface:
 ```php

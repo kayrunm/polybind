@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
+use Kayrunm\Polybind\Exceptions\InvalidModelType;
+use Kayrunm\Polybind\Exceptions\ParameterNotFound;
 use Kayrunm\Polybind\Exceptions\PolybindException;
 use Kayrunm\Polybind\Support\ParameterResolver;
 
@@ -31,7 +33,8 @@ class Polybind
      * @param  string|null  $modelParam
      * @return mixed
      *
-     * @throws PolybindException
+     * @throws ParameterNotFound
+     * @throws InvalidModelType
      */
     public function handle(
         Request $request,
@@ -53,7 +56,7 @@ class Polybind
         $route = $request->route();
 
         if (! $this->isValidType($model, $modelParam, $route)) {
-            throw (new ModelNotFoundException())->setModel(get_class($model));
+            throw InvalidModelType::make($model);
         }
 
         $route->forgetParameter($typeParam);
@@ -67,11 +70,13 @@ class Polybind
      * @param  Request  $request
      * @param  string  $param
      * @return class-string<Model>
+     *
+     * @throws ParameterNotFound
      */
     private function resolveModelClass(Request $request, string $param): string
     {
         if (! $type = $request->route($param)) {
-            throw PolybindException::typeNotFound($param);
+            throw ParameterNotFound::make($param);
         }
 
         if ($class = Relation::getMorphedModel($type)) {
